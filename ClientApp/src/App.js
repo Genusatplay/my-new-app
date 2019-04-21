@@ -4,7 +4,8 @@ import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { FetchData } from './components/FetchData';
 import { Counter } from './components/Counter';
-import { Employee } from './components/Employee';
+import { FetchEmployee } from './components/FetchEmployee';
+import { EditEmployee } from './components/EditEmployee';
 import { Login } from './components/Login';
 
 export default class App extends Component {
@@ -12,12 +13,14 @@ export default class App extends Component {
 
   render () {
     return (
-      <Layout>
-        <Route exact path='/' component={Home} />
+        <Layout>
+        <Route exact path='/' component={FetchEmployee} />
+        <Route exact path='/employee/add' component={EditEmployee} />
+        <Route exact path='/home' component={Home} />
         <Route path='/counter' component={Counter} />
         <Route path='/fetch-data' component={FetchData} />
-            <Route path='/employee' component={Employee} />
-            <Route path='/login' component={Login} />
+        <Route path='/employee' component={FetchEmployee} />
+        <Route path='/login' component={Login} />
       </Layout>
     );
   }

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using my_new_app.Models;
 
 namespace my_new_app
 {
@@ -20,6 +22,8 @@ namespace my_new_app
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string conn = @"Data Source=GENUS\SQLEXPRESS;Initial Catalog=test;Integrated Security=True";
+            services.AddDbContext<EmployeeContext>(options => options.UseSqlServer(conn));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // In production, the React files will be served from this directory
