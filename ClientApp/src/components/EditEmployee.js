@@ -6,42 +6,62 @@ export class EditEmployee extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { employees: [], loading: true };
-
-        fetch('api/Employee')
-            .then(response => response.json())
-            .then(data => {
-                this.setState({ employees: data, loading: false });
-            });
+        this.state = {
+            employee: {}, loading: true
+        };
+        this.number = parseInt(props.match.params.number, 10)
+        if (!Number.isNaN(this.number)) {
+            fetch('api/Employee/' + props.match.params.number)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({ employee: data, loading: false });
+                });
+        }
+        else {
+            this.state.loading = false;
+        }
     }
 
-    static renderEmployeesTable(employees) {
+    static renderEmployeesTable(employee) {
         return (
-            <table className='table table-striped'>
-                <tr>
-                    <td>Имя</td><td></td>
-                    <td>Почта</td><td></td>
-                    <td>Дата рождения</td><td></td>
-                    <td>Зарплата</td><td></td>
-                </tr>
-            </table>
+            <form>
+                <label>
+                    Имя:
+                    <input type="text" value={employee.name} />
+                </label>
+                <br/>
+                <label>
+                    Почта:
+                    <input type="text" value={employee.email} />
+                </label>
+                <br/>
+                <label>
+                    Дата рождения:
+                    <input type="text" value={employee.birthday} />
+                </label>
+                <br/>
+                <label>
+                    Зарплата:
+                    <input type="text" value={employee.salary} />
+                </label>
+            </form>
         );
     }
 
     render() {
         let contents = this.state.loading
             ? <p><em>Загрузка</em></p>
-            : EditEmployee.renderEmployeesTable(this.state.employees);
+            : EditEmployee.renderEmployeesTable(this.state.employee);
 
         return (
             <div>
-                <h1>Сотрудники</h1>
-                <Link to='/'>
-                    <button type="button" className="btn btn-info">Добавить сотрудника</button>
-                </Link>
                 {contents}
-                <button type="button" className="btn btn-info">Добавить</button>
-                <button type="button" className="btn btn-info">Отмена</button>
+                <div className="btn-group btn-group-sm">
+                    <button type="button" className="btn btn-success">Сохранить</button>
+                    <Link to='/'>
+                    <button type="button" className="btn btn-success">Отмена</button>
+                    </Link>
+                </div>
             </div>
         );
     }

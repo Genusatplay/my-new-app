@@ -15,7 +15,28 @@ export class FetchEmployee extends Component {
             });
     }
 
-    static renderEmployeesTable(employees) {
+    goEdit(id) {
+        let path = '/employee/' + id;
+        this.props.history.push(path);
+    }
+
+    deleteEmployee(id) {
+        console.log('delete id - ' + id);
+        const requestOption = { method: 'DELETE' };
+        fetch('api/Employee/' + id, requestOption).then((response) => {
+            return response.json();
+        }).then((result) => {
+            console.log(result);
+            var tmp = this.state.employees.concat();
+            var idx = tmp.findIndex(item => item.id === id);
+            if (idx > -1) {
+                tmp.splice(idx, 1);
+                this.setState({ employees: tmp });
+            }
+        });
+    }
+
+    static renderEmployeesTable(employees, main) {
         return (
             <table className='table table-striped'>
                 <thead>
@@ -34,7 +55,12 @@ export class FetchEmployee extends Component {
                             <td>{employee.email}</td>
                             <td>{new Date(employee.birthday + 'Z').toLocaleString()}</td>
                             <td>{employee.salary}</td>
-                            <td>Удалить / Редактировать</td>
+                            <td>
+                                <div className="btn-group btn-group-sm">
+                                    <button onClick={() => main.deleteEmployee(employee.id)} className="btn btn-success">Удалить</button>
+                                    <button onClick={() => main.goEdit(employee.id)} className="btn btn-success">Редактировать</button>
+                                </div>
+                            </td>
                         </tr>
                     )}
                 </tbody>
@@ -45,13 +71,10 @@ export class FetchEmployee extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Загрузка</em></p>
-            : FetchEmployee.renderEmployeesTable(this.state.employees);
-
+            : FetchEmployee.renderEmployeesTable(this.state.employees, this);
+        
         return (
             <div>
-                <Link to='/'>
-                    <button type="button" className="btn btn-info">Добавить сотрудника</button>
-                </Link>
                 {contents}
             </div>
         );
