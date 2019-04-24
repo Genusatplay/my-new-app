@@ -1,5 +1,4 @@
 ﻿import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
 
 export class FetchEmployee extends Component {
     static displayName = FetchEmployee.name;
