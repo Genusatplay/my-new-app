@@ -52,7 +52,7 @@ export class FetchEmployee extends Component {
                         <tr key={employee.id}>
                             <td>{employee.name}</td>
                             <td>{employee.email}</td>
-                            <td>{new Date(employee.birthday + 'Z').toLocaleString()}</td>
+                            <td>{new Date(employee.birthday).toLocaleString()}</td>
                             <td>{employee.salary}</td>
                             <td>
                                 <div className="btn-group btn-group-sm">

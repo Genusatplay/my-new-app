@@ -11,7 +11,7 @@ namespace my_new_app.Models
         public long Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public DateTime Birthday { get; set; }
+        public DateTimeOffset Birthday { get; set; }
         [Column(TypeName="Money")]
         public decimal Salary { get; set; }
     }
