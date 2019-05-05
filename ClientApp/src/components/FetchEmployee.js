@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import api from './api';
 
 export class FetchEmployee extends Component {
     static displayName = FetchEmployee.name;
@@ -7,10 +8,31 @@ export class FetchEmployee extends Component {
         super(props);
         this.state = { employees: [], loading: true };
 
-        fetch('api/Employee')
+        const requestOption = {
+            method: 'GET',
+            headers: api.jwtHeader()
+        };
+
+        fetch('api/Employee', requestOption)
+            .then((response) => {
+                if (response.status !== 200) {
+                    console.log(response);
+                    throw new Error(response.status);
+                }
+                return response;
+            })
             .then(response => response.json())
             .then(data => {
                 this.setState({ employees: data, loading: false });
+            })
+            .catch((error) => {
+                console.log("error: " + error);
+                if (error == "Error: 401") {
+                    console.log("401 ERROR!!!!!");
+                    sessionStorage.removeItem("accessToken");
+                    let path = "/";
+                    this.props.history.push(path);
+                }
             });
     }
 
@@ -21,18 +43,39 @@ export class FetchEmployee extends Component {
 
     deleteEmployee(id) {
         console.log('delete id - ' + id);
-        const requestOption = { method: 'DELETE' };
-        fetch('api/Employee/' + id, requestOption).then((response) => {
-            return response.json();
-        }).then((result) => {
-            console.log(result);
-            var tmp = this.state.employees.concat();
-            var idx = tmp.findIndex(item => item.id === id);
-            if (idx > -1) {
-                tmp.splice(idx, 1);
-                this.setState({ employees: tmp });
-            }
-        });
+        const requestOption = {
+            method: 'DELETE',
+            headers: api.jwtHeader()
+        };
+        fetch('api/Employee/' + id, requestOption)
+            .then((response) => {
+                if (response.status !== 200) {
+                    console.log(response);
+                    throw new Error(response.status);
+                }
+                return response;
+            })
+            .then((response) => {
+                return response.json();
+            })
+            .then((result) => {
+                console.log(result);
+                var tmp = this.state.employees.concat();
+                var idx = tmp.findIndex(item => item.id === id);
+                if (idx > -1) {
+                    tmp.splice(idx, 1);
+                    this.setState({ employees: tmp });
+                }
+            })
+            .catch((error) => {
+                console.log("error: " + error);
+                if (error == "Error: 401") {
+                    console.log("401 ERROR!!!!!");
+                    sessionStorage.removeItem("accessToken");
+                    let path = "/";
+                    this.props.history.push(path);
+                }
+            });
     }
 
     static renderEmployeesTable(employees, main) {

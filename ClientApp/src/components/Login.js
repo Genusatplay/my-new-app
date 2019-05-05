@@ -3,32 +3,102 @@
 //import AppBar from 'material-ui/AppBar';
 //import RaisedButton from 'material-ui/RaisedButton';
 //import TextField from 'material-ui/TextField';
-//import './Login.css';
+import './Login.css';
 
 export class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            error: ""
         }
+        this.onSumbit = this.onSumbit.bind(this);
     }
+
+    onChange = (e) => {
+        /*
+          Because we named the inputs to match their
+          corresponding values in state, it's
+          super easy to update the state
+        */
+        this.setState({ [e.target.name]: e.target.value });
+    }
+
+    onSumbit(e) {
+        e.preventDefault();
+        this.setState({ error: "" });
+        console.log("submit!");
+
+        var fd = new FormData();
+        fd.append('password', this.state.username);
+        fd.append('username', this.state.password);
+
+        fetch('api/Authentication', { method: 'POST', body: fd })
+            .then((response) => {
+                if (response.status === 401) {
+                    console.log(response.text().
+                        then((text) => {
+                            console.log(text);
+                            //this.setState({ error: text }); //eng response
+                            this.setState({ error: "Неверные имя пользователя или пароль" });
+                        }));
+                    throw Error(response.statusText);
+                }
+                return response;
+            })
+            .then((res) => { return res.json(); })
+            .then((json) => {
+                console.log(json.access_token);
+                sessionStorage.setItem("accessToken", json.access_token);
+                this.props.history.push("/");
+                console.log("go home");
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     render() {
+        let error = this.state.error != ""
+            ? <label className="errLbl"> {this.state.error}</label>
+            : "";
         return (
-            <div>
-                <label for="uname"><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required/>
+            <div className="mainDiv">
+                {error}
+                <form
+                    action='api/Authentication'
+                    method='POST'
+                    onSubmit={this.onSumbit}
+                >
+                    <div className="form-goup">
+                        <label for="username"><b>Пользователь</b></label>
+                        <input
+                            type="text"
+                            placeholder="Введите имя пользователя"
+                            name="username" required
+                            onChange={this.onChange}
+                            class="form-control"
+                        />
+                    </div>
 
-                <label for="psw"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="upwd" required/>
-
-                <button type="submit">Login</button>
+                    <div className="form-goup">
+                        <label for="password"><b>Пароль</b></label>
+                        <input
+                            type="password"
+                            placeholder="Введите пароль"
+                            name="password" required
+                            onChange={this.onChange}
+                            class="form-control"
+                        />
+                    </div>
+                    <div className="btn-group btn-group-sm loginBtn">
+                        <button type="submit" className="btn btn-success">Войти</button>
+                    </div>
+                </form>
             </div>
         );
     }
 }
-const style = {
-    margin: 15,
-    
-};
+
 export default Login;

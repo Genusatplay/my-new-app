@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import api from './api';
 
 const errorStyle = { border: '2px solid red' };
     
@@ -30,7 +31,18 @@ export class EditEmployee extends Component {
 
         var number = parseInt(props.match.params.number, 10)
         if (!Number.isNaN(number)) {
-            fetch('api/Employee/' + props.match.params.number)
+            const requestOption = {
+                method: 'GET',
+                headers: api.jwtHeader()
+            };
+            fetch('api/Employee/' + props.match.params.number, requestOption)
+                .then((response) => {
+                    if (response.status !== 200) {
+                        console.log(response);
+                        throw new Error(response.status);
+                    }
+                    return response;
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (Number.isInteger(data.id)) {
@@ -46,6 +58,14 @@ export class EditEmployee extends Component {
                         salaryValid: true,
                         formValid: true
                     });
+                })
+                .catch((error) => {
+                    console.log("error: " + error);
+                    if (error == "Error: 401") {
+                        console.log("401 ERROR!!!!!");
+                        sessionStorage.removeItem("accessToken");
+                        this.goHome();
+                    }
                 });
         }
         else {
@@ -138,8 +158,7 @@ export class EditEmployee extends Component {
     }
 
     goHome() {
-        let path = '/';
-        this.props.history.push(path);
+        this.props.history.push("/");
     }
 
     handleSave(e) {
@@ -153,6 +172,7 @@ export class EditEmployee extends Component {
 
         if (isNaN(this.state.id)) {
             console.log('insert');
+            console.log(this.state.employee.birthday);
 
             var tmp = {
                 "birthday": this.state.employee.birthday.toISOString().slice(0, 19) + 'Z',
@@ -165,18 +185,33 @@ export class EditEmployee extends Component {
             const requestOption = {
                 method: 'POST',
                 body: JSON.stringify(tmp),
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                }
+                headers: api.jwtHeader()
             };
-            fetch('api/Employee', requestOption).then((response) => {
-                return response.json();
-            }).then((result => {
-                console.log(result);
-                if ('id' in result) {
-                    this.goHome();
-                }
-            }));
+            fetch('api/Employee', requestOption)
+                .then((response) => {
+                    if (response.status === 401) {
+                        console.log(response);
+                        throw new Error(response.status);
+                    }
+                    return response;
+                })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((result => {
+                    console.log(result);
+                    if ('id' in result) {
+                        this.goHome();
+                    }
+                }))
+                .catch((error) => {
+                    console.log("error: " + error);
+                    if (error == "Error: 401") {
+                        console.log("401 ERROR!!!!!");
+                        sessionStorage.removeItem("accessToken");
+                        this.goHome();
+                    }
+                });
         }
         else {
             console.log('update');
@@ -193,21 +228,28 @@ export class EditEmployee extends Component {
             const requestOption = {
                 method: 'PUT',
                 body: JSON.stringify(tmp),
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                }
+                headers: api.jwtHeader()
             };
-            fetch('api/Employee/' + tmp.id, requestOption).then((response) => {
-                console.log(response);
-                if (response.status >= 200 && response.status < 300) {
-                    this.goHome();
-                }
-                else {
-                    var error = new Error(response.statusText)
-                    error.response = response
-                    throw error
-                }
-            });
+            fetch('api/Employee/' + tmp.id, requestOption)
+                .then((response) => {
+                    console.log(response);
+                    if (response.status >= 200 && response.status < 300) {
+                        this.goHome();
+                    }
+                    else {
+                        var error = new Error(response.statusText)
+                        error.response = response
+                        throw error
+                    }
+                })
+                .catch((error) => {
+                    console.log("error: " + error);
+                    if (error == "Error: 401") {
+                        console.log("401 ERROR!!!!!");
+                        sessionStorage.removeItem("accessToken");
+                        this.goHome();
+                    }
+                });
         }
     }
 

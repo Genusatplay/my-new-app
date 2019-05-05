@@ -1,29 +1,47 @@
 import React, { Component } from 'react';
-import { Route, Switch } from 'react-router';
+import { Route, Switch, Redirect } from 'react-router';
 import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-import { FetchData } from './components/FetchData';
-import { Counter } from './components/Counter';
 import { FetchEmployee } from './components/FetchEmployee';
 import { EditEmployee } from './components/EditEmployee';
 import { Login } from './components/Login';
 
-export default class App extends Component {
-  static displayName = App.name;
+const PrivateRoute = ({ component: Component, ...rest }) => (
+    <Route
+        {...rest}
+        render={props =>
+            sessionStorage.getItem("accessToken") ? (
+                <Component {...props} />
+            ) : (
+                    <Redirect
+                        to={{
+                            pathname: "/login"
+                        }}
+                    />
+                )
+        }
+    />
+);
 
-  render () {
-    return (
-        <Layout>
+export default class App extends Component {
+    static displayName = App.name;
+
+    render() {
+        return (
             <Switch>
-                <Route exact path='/' component={FetchEmployee} />
-                <Route exact path='/employee' component={EditEmployee} />
-                <Route path='/employee/:number' component={EditEmployee} />
-                <Route path='/home' component={Home} />
-                <Route path='/counter' component={Counter} />
-                <Route path='/fetch-data' component={FetchData} />
                 <Route path='/login' component={Login} />
+                <Layout>
+                    <Switch>
+                        <PrivateRoute exact path='/' component={FetchEmployee} />
+                        <PrivateRoute exact path='/employee' component={EditEmployee} />
+                        <PrivateRoute path='/employee/:number' component={EditEmployee} />
+                        <Route path='*' render={() => (
+                            sessionStorage.getItem("accessToken")
+                                ? (<Redirect to="/" />)
+                                : (<Redirect to="/login"/> )
+                        )} />
+                    </Switch>
+                </Layout>
             </Switch>
-      </Layout>
-    );
-  }
+        );
+    }
 }
