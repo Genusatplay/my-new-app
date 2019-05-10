@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import api from './api';
+import moment from 'moment'
+import 'moment/min/locales';
 
 const errorStyle = { border: '2px solid red' };
     
@@ -12,7 +14,7 @@ export class EditEmployee extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            employee: {},
+            employee: { name: '', email: '', birthday: '', salary: ''},
             loading: true,
             id: NaN,
             date: '',
@@ -20,7 +22,8 @@ export class EditEmployee extends Component {
             emailValid: false,
             dateValid: false,
             salaryValid: false,
-            formValid: false
+            formValid: false,
+            pickerFormat: 'dd/MM/YYYY'
         };
 
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -29,7 +32,12 @@ export class EditEmployee extends Component {
         this.handleBirthdayChange = this.handleBirthdayChange.bind(this);
         this.handleSave = this.handleSave.bind(this);
 
-        var number = parseInt(props.match.params.number, 10)
+        let userLocale = window.navigator.userLanguage || window.navigator.language;
+        moment.locale(userLocale);
+        let re = new RegExp('D', 'g');
+        this.state.pickerFormat = moment.localeData().longDateFormat('l').replace(re, 'd');
+
+        let number = parseInt(props.match.params.number, 10)
         if (!Number.isNaN(number)) {
             const requestOption = {
                 method: 'GET',
@@ -152,8 +160,9 @@ export class EditEmployee extends Component {
     handleSalaryChange(e) {
         var empl = this.state.employee;
         empl.salary = e.target.value;
+        //console.log(e.target.value);
         this.setState({ employee: empl });
-        this.state.salaryValid = !isNaN(empl.salary);
+        this.state.salaryValid = !isNaN(empl.salary) && empl.salary !== ""
         this.validateForm();
     }
 
@@ -175,12 +184,12 @@ export class EditEmployee extends Component {
             console.log(this.state.employee.birthday);
 
             var tmp = {
-                "birthday": this.state.employee.birthday.toISOString().slice(0, 19) + 'Z',
+                "birthday": this.state.employee.birthday.toISOString(),
                 "salary": this.state.employee.salary,
                 "name": this.state.employee.name,
                 "email": this.state.employee.email
             };
-            this.state.employee.birthday = this.state.employee.birthday.toISOString().slice(0, 19) + 'Z';
+            this.state.employee.birthday = this.state.employee.birthday.toISOString();
 
             const requestOption = {
                 method: 'POST',
@@ -218,7 +227,7 @@ export class EditEmployee extends Component {
 
             var tmp = {
                 "id": this.state.employee.id,
-                "birthday": this.state.employee.birthday.toISOString().slice(0, 19) + 'Z',
+                "birthday": this.state.employee.birthday.toISOString(),
                 "salary": this.state.employee.salary,
                 "name": this.state.employee.name,
                 "email": this.state.employee.email
@@ -263,14 +272,14 @@ export class EditEmployee extends Component {
             : <p style={errorStyle} > Укажите имя</ p>;
 
         let emailV = !this.state.emailValid && this.state.employee.email
-            ? <small id="emailHelp" class="form-text text-muted">Некорректный адрес.</small>
+            ? <small id="emailHelp" className="form-text text-muted">Некорректный адрес.</small>
             : "";
         let salaryV = !this.state.salaryValid && this.state.employee.salary
-            ? <small id="emailHelp" class="form-text text-muted">Некорректное значение.</small>
+            ? <small id="emailHelp" className="form-text text-muted">Некорректное значение.</small>
             : "";
         let formV = this.state.formValid
             ? ""
-            : <small id="emailHelp" class="form-text text-muted">Форма не заполнена.</small>
+            : <small id="emailHelp" className="form-text text-muted">Форма не заполнена.</small>
 
         return (
             <div>
@@ -278,7 +287,7 @@ export class EditEmployee extends Component {
                 <form>
                     <div className="form-goup">
                         <label>Имя:</label>
-                        <input type="email" class="form-control"
+                        <input type="text" className="form-control"
                             aria-describedby="nameHelp" placeholder="Введите имя сотрудника"
                             value={this.state.employee.name}
                             onChange={this.handleNameChange}
@@ -287,7 +296,7 @@ export class EditEmployee extends Component {
                     <br/>
                     <div className="form-goup">
                         <label>Эл. почта:</label>
-                        <input type="email" class="form-control" id="exampleInputEmail1"
+                        <input type="email" className="form-control" id="exampleInputEmail1"
                             aria-describedby="emailHelp" placeholder="Введите адрес эл. почты."
                             value={this.state.employee.email} onChange={this.handleEmailChange}
                         />
@@ -302,13 +311,14 @@ export class EditEmployee extends Component {
                             value={this.state.employee.birthday}
                             selected={this.state.employee.birthday}
                             onChange={this.handleBirthdayChange}
-                            />
+                            dateFormat={this.state.pickerFormat}
+                        />
                     </div>
                     <br/>
                     <div className="form-goup">
                         <label>Зарплата:</label>
                         <input type="text"
-                            class="form-control" aria-describedby="emailHelp"
+                            className="form-control" aria-describedby="emailHelp"
                             value={this.state.employee.salary} onChange={this.handleSalaryChange} />
                         {salaryV}
                     </div>

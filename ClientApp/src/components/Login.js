@@ -72,24 +72,24 @@ export class Login extends Component {
                     onSubmit={this.onSumbit}
                 >
                     <div className="form-goup">
-                        <label for="username"><b>Пользователь</b></label>
+                        <label htmlFor="username"><b>Пользователь</b></label>
                         <input
                             type="text"
                             placeholder="Введите имя пользователя"
                             name="username" required
                             onChange={this.onChange}
-                            class="form-control"
+                            className="form-control"
                         />
                     </div>
 
                     <div className="form-goup">
-                        <label for="password"><b>Пароль</b></label>
+                        <label htmlFor="password"><b>Пароль</b></label>
                         <input
                             type="password"
                             placeholder="Введите пароль"
                             name="password" required
                             onChange={this.onChange}
-                            class="form-control"
+                            className="form-control"
                         />
                     </div>
                     <div className="btn-group btn-group-sm loginBtn">
