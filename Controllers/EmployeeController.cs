@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using my_new_app.Models;
+using Newtonsoft.Json;
 
 namespace my_new_app.Controllers
 {
@@ -24,9 +25,67 @@ namespace my_new_app.Controllers
 
         // GET: api/Employee
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployers()
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployers([FromQuery]PageParametersModel pageParams)
         {
-            return await _context.Employees.ToListAsync();
+            int count = _context.Employees.Count();
+
+            int currentPage = pageParams.PageNumber;
+            int pageSize = pageParams.PageSize;
+            int totalCount = count;
+            int totalPages = (int)Math.Ceiling(count / (double)pageSize);
+            //var items = _context.Employees.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var previousPage = currentPage > 1;
+            var nextPage = currentPage < totalPages;
+            var sortOrder = pageParams.SortOrder;
+            var sortColumnName = pageParams.SortColumnName;
+
+            var sorted = _context.Employees.AsQueryable();
+            switch (sortColumnName.ToLower() + "_" + sortOrder.ToLower())
+            {
+                case "name_desc":
+                    sorted = sorted.OrderByDescending(e => e.Name);
+                    break;
+                case "email_asc":
+                    sorted = sorted.OrderBy(e => e.Email);
+                    break;
+                case "email_desc":
+                    sorted = sorted.OrderByDescending(e => e.Email);
+                    break;
+                case "birthday_asc":
+                    sorted = sorted.OrderBy(e => e.Birthday);
+                    break;
+                case "birthday_desc":
+                    sorted = sorted.OrderByDescending(e => e.Birthday);
+                    break;
+                case "salary_asc":
+                    sorted = sorted.OrderBy(e => e.Salary);
+                    break;
+                case "salary_desc":
+                    sorted = sorted.OrderByDescending(e => e.Salary);
+                    break;
+                default:
+                    sorted = sorted.OrderBy(e => e.Name);
+                    sortColumnName = "name";
+                    sortOrder = "asc";
+                    break;
+            }
+
+            var paginationMetadata = new
+            {
+                totalCount,
+                pageSize,
+                currentPage,
+                totalPages,
+                previousPage,
+                nextPage,
+                sortOrder,
+                sortColumnName
+            };
+
+            HttpContext.Response.Headers.Add("PageParam-Header", JsonConvert.SerializeObject(paginationMetadata));
+            return await sorted.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync();
+            //return await _context.Employees.ToListAsync();
         }
 
         // GET: api/Employee/5

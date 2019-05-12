@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
-import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import api from './api';
 import moment from 'moment'
@@ -69,7 +69,7 @@ export class EditEmployee extends Component {
                 })
                 .catch((error) => {
                     console.log("error: " + error);
-                    if (error == "Error: 401") {
+                    if (error === "Error: 401") {
                         console.log("401 ERROR!!!!!");
                         sessionStorage.removeItem("accessToken");
                         this.goHome();
@@ -102,15 +102,14 @@ export class EditEmployee extends Component {
         this.setState({ employee: empl });
         if (empl.name) {
             this.state.nameValid = true;
-        //    this.setState({ nameValid: true });
-        //    console.log('name valid');
+            //this.setState({ nameValid: true });
+            //console.log('name valid');
         }
         else {
             this.state.nameValid = false;
-        //    this.setState({ nameValid: false });
-        //    console.log('name not valid');
+            //this.setState({ nameValid: false });
+            //console.log('name not valid');
         }
-        //this.state.nameValid = !empl.name === "";
         this.validateForm();
     }
 
@@ -183,7 +182,7 @@ export class EditEmployee extends Component {
             console.log('insert');
             console.log(this.state.employee.birthday);
 
-            var tmp = {
+            let tmp = {
                 "birthday": this.state.employee.birthday.toISOString(),
                 "salary": this.state.employee.salary,
                 "name": this.state.employee.name,
@@ -225,7 +224,7 @@ export class EditEmployee extends Component {
         else {
             console.log('update');
 
-            var tmp = {
+            let tmp = {
                 "id": this.state.employee.id,
                 "birthday": this.state.employee.birthday.toISOString(),
                 "salary": this.state.employee.salary,
@@ -263,27 +262,19 @@ export class EditEmployee extends Component {
     }
 
     render() {
-        let contents = this.state.loading
-            ? <p><em>Загрузка</em></p>
-            : EditEmployee.renderEmployeesTable(this.state.employee);
-
-        let nameV = this.state.nameValid
-            ? ""
-            : <p style={errorStyle} > Укажите имя</ p>;
 
         let emailV = !this.state.emailValid && this.state.employee.email
-            ? <small id="emailHelp" className="form-text text-muted">Некорректный адрес.</small>
+            ? <small id="emailHelp" className="form-text" style={{ color: 'red' }}>Некорректный адрес.</small>
             : "";
         let salaryV = !this.state.salaryValid && this.state.employee.salary
-            ? <small id="emailHelp" className="form-text text-muted">Некорректное значение.</small>
+            ? <small id="emailHelp" className="form-text" style={{ color: 'red' }}>Некорректное значение.</small>
             : "";
         let formV = this.state.formValid
             ? ""
-            : <small id="emailHelp" className="form-text text-muted">Форма не заполнена.</small>
+            : <small id="emailHelp" className="form-text" style={{ color: 'red' }}>Форма не заполнена.</small>
 
         return (
             <div>
-                {/* {contents} */}
                 <form>
                     <div className="form-goup">
                         <label>Имя:</label>

@@ -13,7 +13,7 @@ export class Login extends Component {
             password: '',
             error: ""
         }
-        this.onSumbit = this.onSumbit.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     onChange = (e) => {
@@ -25,10 +25,10 @@ export class Login extends Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    onSumbit(e) {
+    onSubmit(e) {
         e.preventDefault();
         this.setState({ error: "" });
-        console.log("submit!");
+        //console.log("submit!");
 
         var fd = new FormData();
         fd.append('password', this.state.username);
@@ -37,8 +37,8 @@ export class Login extends Component {
         fetch('api/Authentication', { method: 'POST', body: fd })
             .then((response) => {
                 if (response.status === 401) {
-                    console.log(response.text().
-                        then((text) => {
+                    console.log(response.text()
+                        .then((text) => {
                             console.log(text);
                             //this.setState({ error: text }); //eng response
                             this.setState({ error: "Неверные имя пользователя или пароль" });
@@ -49,10 +49,10 @@ export class Login extends Component {
             })
             .then((res) => { return res.json(); })
             .then((json) => {
-                console.log(json.access_token);
+                //console.log(json.access_token);
                 sessionStorage.setItem("accessToken", json.access_token);
                 this.props.history.push("/");
-                console.log("go home");
+                //console.log("go home");
             })
             .catch((error) => {
                 console.log(error);
@@ -60,7 +60,7 @@ export class Login extends Component {
     }
 
     render() {
-        let error = this.state.error != ""
+        let error = this.state.error !== ""
             ? <label className="errLbl"> {this.state.error}</label>
             : "";
         return (
@@ -69,7 +69,7 @@ export class Login extends Component {
                 <form
                     action='api/Authentication'
                     method='POST'
-                    onSubmit={this.onSumbit}
+                    onSubmit={this.onSubmit}
                 >
                     <div className="form-goup">
                         <label htmlFor="username"><b>Пользователь</b></label>
