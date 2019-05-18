@@ -55,7 +55,7 @@ export class FetchEmployee extends Component {
             })
             .catch((error) => {
                 console.log('error: ' + error);
-                if (error === 'Error: 401') {
+                if (error == 'Error: 401') {
                     console.log('401 ERROR!!!!!');
                     sessionStorage.removeItem('accessToken');
                     this.props.history.push('/');
@@ -78,9 +78,12 @@ export class FetchEmployee extends Component {
 
     sortChanged(sortColumnName){
         //console.log(sortColumnName);
-        this.state.pageparam.sortColumnName = sortColumnName;
-        this.state.pageparam.currentPage = 1;
-        this.state.pageparam.sortOrder = this.state.pageparam.sortOrder == 'asc' ? 'desc' : 'asc';
+        let pageparam = this.state.pageparam;
+        pageparam.sortColumnName = sortColumnName;
+        pageparam.currentPage = 1;
+        pageparam.sortOrder = this.state.pageparam.sortOrder == 'asc' ? 'desc' : 'asc';
+
+        this.setState({ pageparam });
         this.getData();
     }
 
@@ -134,7 +137,9 @@ export class FetchEmployee extends Component {
 
     pageChanged(pageNumber, e){
         e.preventDefault();
-        this.state.pageparam.currentPage = pageNumber;
+        let pageparam = this.state.pageparam;
+        pageparam.currentPage = pageNumber;
+        this.setState({pageparam})
         this.getData();
     }
 

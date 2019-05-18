@@ -69,7 +69,7 @@ export class EditEmployee extends Component {
                 })
                 .catch((error) => {
                     console.log("error: " + error);
-                    if (error === "Error: 401") {
+                    if (error == "Error: 401") {
                         console.log("401 ERROR!!!!!");
                         sessionStorage.removeItem("accessToken");
                         this.goHome();
@@ -99,70 +99,75 @@ export class EditEmployee extends Component {
     handleNameChange(e) {
         var empl = this.state.employee;
         empl.name = e.target.value;
-        this.setState({ employee: empl });
+        let valid;
         if (empl.name) {
-            this.state.nameValid = true;
-            //this.setState({ nameValid: true });
-            //console.log('name valid');
+            valid = true;
         }
         else {
-            this.state.nameValid = false;
-            //this.setState({ nameValid: false });
-            //console.log('name not valid');
+            valid = false
         }
-        this.validateForm();
+        this.setState({
+            employee: empl,
+            nameValid: valid,
+            formValid: valid & this.state.emailValid & this.state.dateValid & this.state.salaryValid
+        });
+        //this.validateForm();
     }
 
     handleEmailChange(e) {
         //console.log(e.target.value);
         var empl = this.state.employee;
         empl.email = e.target.value;
-        this.setState({ employee: empl });
+        let valid;
         if (e.target.value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)) {
-        //    this.setState({ emailValid: true });
-            this.state.emailValid = true;
+            valid = true;
         }
         else {
-            this.state.emailValid = false;
-        //    this.setState({ emailValid: false });
+            valid = false;
         }
-        this.validateForm();
+        this.setState({
+            employee: empl,
+            emailValid: valid,
+            formValid: this.state.nameValid & valid & this.state.dateValid & this.state.salaryValid
+        });
+        //this.validateForm();
     }
 
     handleBirthdayChange(date) {
         //console.log(date);
         var empl = this.state.employee;
         empl.birthday = date
-        this.setState({ employee: empl });
-
-        this.state.dateValid = this.isValidDate(date);
-        this.validateForm();
+        let valid = this.isValidDate(date);
+        this.setState({
+            employee: empl,
+            dateValid: valid,
+            formValid: this.state.nameValid && this.state.emailValid & valid & this.state.salaryValid
+        });
+        //this.validateForm();
     }
 
     isValidDate(d) {
         return d instanceof Date && !isNaN(d);
     }
     validateForm() {
-        //console.log("name = " + this.state.nameValid);
-        //console.log("email = " + this.state.emailValid);
-        //console.log("date = " + this.state.dateValid);
-        //console.log("salary = " + this.state.salaryValid);
-        this.setState({
-            formValid:
-                this.state.nameValid &
-                this.state.emailValid &
-                this.state.dateValid &
-                this.state.salaryValid
-        });
+        console.log("-------")
+        console.log("name = " + this.state.nameValid);
+        console.log("email = " + this.state.emailValid);
+        console.log("date = " + this.state.dateValid);
+        console.log("salary  " + this.state.salaryValid);
+        console.log("form valid - " + this.state.formValid);
     }
 
     handleSalaryChange(e) {
         var empl = this.state.employee;
         empl.salary = e.target.value;
-        //console.log(e.target.value);
-        this.setState({ employee: empl });
-        this.state.salaryValid = !isNaN(empl.salary) && empl.salary !== ""
-        this.validateForm();
+        let valid = !isNaN(empl.salary) && empl.salary !== "";
+        this.setState({
+            employee: empl,
+            salaryValid: valid,
+            formValid: this.state.nameValid & this.state.emailValid & this.state.dateValid & valid
+        });
+        //this.validateForm();
     }
 
     goHome() {
@@ -188,7 +193,7 @@ export class EditEmployee extends Component {
                 "name": this.state.employee.name,
                 "email": this.state.employee.email
             };
-            this.state.employee.birthday = this.state.employee.birthday.toISOString();
+            //this.state.employee.birthday = this.state.employee.birthday.toISOString();
 
             const requestOption = {
                 method: 'POST',
@@ -197,7 +202,7 @@ export class EditEmployee extends Component {
             };
             fetch('api/Employee', requestOption)
                 .then((response) => {
-                    if (response.status === 401) {
+                    if (response.status == 401) {
                         console.log(response);
                         throw new Error(response.status);
                     }

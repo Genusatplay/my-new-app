@@ -36,7 +36,7 @@ export class Login extends Component {
 
         fetch('api/Authentication', { method: 'POST', body: fd })
             .then((response) => {
-                if (response.status === 401) {
+                if (response.status == 401) {
                     console.log(response.text()
                         .then((text) => {
                             console.log(text);

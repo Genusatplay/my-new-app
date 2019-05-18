@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using my_new_app.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace my_new_app
 {
@@ -40,6 +41,7 @@ namespace my_new_app
                         ValidAudience = AuthOptions.AUDIENCE,
 
                         ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
 
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                         ValidateIssuerSigningKey = true
